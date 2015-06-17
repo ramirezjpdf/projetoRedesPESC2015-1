@@ -1,0 +1,2 @@
+# projetoRedesPESC2015-1
+O objetivo deste trabalho ´e fazer um programa que implemente algumas das funções de um programa de transmissão de dados multimídia. Mais especificamente, implementa um protocolo simples de transferência de áudio. O buffer no receptor é uma estratégia bastante utilizada por aplicaões multimídia para compensar o jitter introduzido pela rede. Um dos objetivos deste trabalho é entender o motivo de haver buffers de recepção nos softwares de transmissão multimídia. 
