@@ -18,6 +18,7 @@ public class RandomFileChunkRetriever implements FileChunkRetriever {
 	public RandomFileChunkRetriever(File file, long chunkLength) throws FileNotFoundException {
 		fileReader = new RandomAccessFile(file, "r");
 		fileLength = file.length();
+		System.out.println(fileLength);
 		chunkCounter = 0;
 		this.chunkLength = chunkLength;
 		chunkIdList = new ArrayList<Long>();
@@ -25,17 +26,18 @@ public class RandomFileChunkRetriever implements FileChunkRetriever {
 			chunkIdList.add(new Long(i));
 		}
 		Collections.shuffle(chunkIdList);
-		
 	}
 	
 	@Override
-	public boolean getNextChunk(byte[] bytes) throws IOException {
-		if (bytes.length != chunkLength) {
+	public boolean getNextChunk(Chunk chunk) throws IOException {
+		if (chunk.getBytes().length != chunkLength) {
 			throw new IllegalArgumentException("The byte array passed to this methos must have length = " + chunkLength);
 		}
 		
-		fileReader.seek(chunkIdList.get(chunkCounter++) * chunkLength);
-		fileReader.read(bytes);
+		long chunkId = chunkIdList.get(chunkCounter++);
+		chunk.setSeqNum(chunkId);
+		fileReader.seek(chunkId * chunkLength);
+		chunk.setActualChunkLength(fileReader.read(chunk.getBytes()));
 		fileReader.seek(0);
 		return true;
 	}
@@ -44,5 +46,4 @@ public class RandomFileChunkRetriever implements FileChunkRetriever {
 	public boolean hasNext() {
 		return chunkCounter < chunkIdList.size();
 	}
-
 }
