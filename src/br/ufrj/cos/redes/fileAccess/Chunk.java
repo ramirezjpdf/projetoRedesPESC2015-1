@@ -4,9 +4,15 @@ public class Chunk implements Comparable<Chunk>{
 	private long seqNum;
 	private byte[] bytes;
 	private int actualChunkLength;
+	private boolean available;
 	
 	public Chunk(int chunkLength) {
 		bytes = new byte[chunkLength];
+	}
+	
+	public Chunk(int chunkLength, boolean available) {
+		bytes = new byte[chunkLength];
+		this.available = available;
 	}
 	
 	public long getSeqNum() {
@@ -38,4 +44,13 @@ public class Chunk implements Comparable<Chunk>{
 		}
 	}
 	
+	public boolean isAvailable() {
+		return available;
+	}
+	
+	public void setAvailable(boolean available) {
+		this.available = available;
+	}
+	
 }
+
