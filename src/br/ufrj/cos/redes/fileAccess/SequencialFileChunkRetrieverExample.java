@@ -3,8 +3,6 @@ package br.ufrj.cos.redes.fileAccess;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SequencialFileChunkRetrieverExample {
 	
@@ -15,8 +13,7 @@ public class SequencialFileChunkRetrieverExample {
 		FileOutputStream sostream = new FileOutputStream(sequencialWriteFilePath);
 		
 		long chunkLength = 160;
-		FileChunkRetriever chunkReceiver = new SequencialFileChunkRetriever(new File(readFilePath), chunkLength, 0.1);
-		List<Chunk> chunks = new ArrayList<Chunk>();
+		FileChunkRetriever chunkReceiver = new SequencialFileChunkRetriever(new File(readFilePath), chunkLength, 0.9);
 		
 		while (chunkReceiver.hasNext()) {
 			Chunk chunk = new Chunk((int)chunkLength);
@@ -26,11 +23,6 @@ public class SequencialFileChunkRetrieverExample {
 				} else {
 					sostream.write(chunk.getBytes(), 0, chunk.getActualChunkLength());
 				}
-				
-				chunks.add(chunk);
-			}
-			else {
-				System.out.println("Failed chunk " + chunk.getSeqNum() + " !");
 			}
 		}
 		

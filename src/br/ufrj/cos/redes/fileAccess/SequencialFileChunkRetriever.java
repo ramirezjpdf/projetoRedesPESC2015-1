@@ -32,23 +32,29 @@ public class SequencialFileChunkRetriever implements FileChunkRetriever {
 	
 	@Override
 	public boolean getNextChunk(Chunk chunk) throws IOException {
-		chunk =  raffle(chunk, this.success);
 		if (chunk.getBytes().length != chunkLength) {
 			throw new IllegalArgumentException("The byte array passed to this methos must have length = " + chunkLength);
 		}
 		
 		long chunkId = chunkCounter++;
-		chunk.setSeqNum(chunkId);
-
-		if(chunk.isAvailable()) {
-			fileReader.seek(chunkId * chunkLength);
-			chunk.setActualChunkLength(fileReader.read(chunk.getBytes()));
-			fileReader.seek(0);
-			return true;
+		chunk.setSeqNum(chunkId);				
+		
+		chunk = raffle(chunk, this.success);		
+		
+		while (!chunk.isAvailable()) {
+			chunk = raffle(chunk, this.success);
+			System.out.println("Chunk " + chunk.getSeqNum() + " not available! Try again in 20ms");
+			try {
+				Thread.sleep(20);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		else {
-			return false;
-		}
+		
+		fileReader.seek(chunkId * chunkLength);
+		chunk.setActualChunkLength(fileReader.read(chunk.getBytes()));
+		fileReader.seek(0);
+		return true;
 	}
 
 	@Override
