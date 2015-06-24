@@ -1,4 +1,4 @@
-package br.ufrj.cos.redes.fowarding;
+package br.ufrj.cos.redes.packet;
 
 import java.io.Serializable;
 
