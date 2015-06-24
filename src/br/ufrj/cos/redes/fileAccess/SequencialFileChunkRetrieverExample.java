@@ -13,7 +13,7 @@ public class SequencialFileChunkRetrieverExample {
 		FileOutputStream sostream = new FileOutputStream(sequencialWriteFilePath);
 		
 		long chunkLength = 160;
-		FileChunkRetriever chunkReceiver = new SequencialFileChunkRetriever(new File(readFilePath), chunkLength, 0.9);
+		FileChunkRetriever chunkReceiver = new SequencialFileChunkRetriever(new File(readFilePath), chunkLength, 0.3);
 		
 		while (chunkReceiver.hasNext()) {
 			Chunk chunk = new Chunk((int)chunkLength);
@@ -23,6 +23,9 @@ public class SequencialFileChunkRetrieverExample {
 				} else {
 					sostream.write(chunk.getBytes(), 0, chunk.getActualChunkLength());
 				}
+				System.out.println("Chunk " + chunk.getSeqNum() +" available.");
+			} else {
+				System.out.println("Chunk " + chunk.getSeqNum() +" not available.");
 			}
 		}
 		

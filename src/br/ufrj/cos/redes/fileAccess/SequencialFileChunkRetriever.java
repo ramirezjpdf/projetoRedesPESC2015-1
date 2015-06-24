@@ -16,15 +16,15 @@ public class SequencialFileChunkRetriever implements FileChunkRetriever {
 	public SequencialFileChunkRetriever(File file, long chunkLength, double success) throws FileNotFoundException {
 		fileReader = new RandomAccessFile(file, "r");
 		fileLength = file.length();
-		System.out.println(fileLength);
+		System.out.println("File size: " + fileLength + " bytes");
 		chunkCounter = 0;
 		this.chunkLength = chunkLength;
 		this.success = success;
 		totalChunk  = (int) Math.ceil((double) fileLength / (double) chunkLength);
-		System.out.println(totalChunk);
+		System.out.println("Number of chunks: "+ totalChunk);
 	}	
 	
-	public Chunk raffle(Chunk chunk, double success) {
+	public Chunk lottery(Chunk chunk, double success) {
 		boolean available = (Math.random() < success) ? true : false;
 		chunk.setAvailable(available);
 		return chunk;
@@ -35,25 +35,20 @@ public class SequencialFileChunkRetriever implements FileChunkRetriever {
 		if (chunk.getBytes().length != chunkLength) {
 			throw new IllegalArgumentException("The byte array passed to this methos must have length = " + chunkLength);
 		}
-		
+
+		chunk = lottery(chunk, this.success);
 		long chunkId = chunkCounter++;
-		chunk.setSeqNum(chunkId);				
+		chunk.setSeqNum(chunkId);	
 		
-		chunk = raffle(chunk, this.success);		
-		
-		while (!chunk.isAvailable()) {
-			chunk = raffle(chunk, this.success);
-			System.out.println("Chunk " + chunk.getSeqNum() + " not available! Try again in 20ms");
-			try {
-				Thread.sleep(20);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		if(chunk.isAvailable()) {		
+			fileReader.seek(chunkId * chunkLength);
+			chunk.setActualChunkLength(fileReader.read(chunk.getBytes()));
+			fileReader.seek(0);
+		} else {
+			chunkId = --chunkCounter;
+			return false;
 		}
 		
-		fileReader.seek(chunkId * chunkLength);
-		chunk.setActualChunkLength(fileReader.read(chunk.getBytes()));
-		fileReader.seek(0);
 		return true;
 	}
 
