@@ -56,5 +56,10 @@ public class SequencialFileChunkRetriever implements FileChunkRetriever {
 	public boolean hasNext() {
 		return chunkCounter < totalChunk;
 	}
+	
+	@Override
+	public long getTotalFileSize() {
+		return this.fileLength;
+	}
 
 }

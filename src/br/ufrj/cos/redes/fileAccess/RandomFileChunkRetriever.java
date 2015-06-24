@@ -18,7 +18,6 @@ public class RandomFileChunkRetriever implements FileChunkRetriever {
 	public RandomFileChunkRetriever(File file, long chunkLength) throws FileNotFoundException {
 		fileReader = new RandomAccessFile(file, "r");
 		fileLength = file.length();
-		System.out.println(fileLength);
 		chunkCounter = 0;
 		this.chunkLength = chunkLength;
 		chunkIdList = new ArrayList<Long>();
@@ -45,5 +44,10 @@ public class RandomFileChunkRetriever implements FileChunkRetriever {
 	@Override
 	public boolean hasNext() {
 		return chunkCounter < chunkIdList.size();
+	}
+	
+	@Override
+	public long getTotalFileSize() {
+		return this.fileLength;
 	}
 }
