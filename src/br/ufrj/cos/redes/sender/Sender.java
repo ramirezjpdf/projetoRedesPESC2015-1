@@ -53,13 +53,15 @@ public class Sender {
 		
 	}
 	
-	public void initiateSending(FileChunkRetriever chunkRetriever, int chunkLength) {
+	public void sendChunksAtConstantRate(FileChunkRetriever chunkRetriever, int chunkLength, SendChunkEndCallback callback) {
 		final Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				if (!chunkRetriever.hasNext()) {
 					timer.cancel();
+					callback.execute();
+					return;
 				}
 				
 				Chunk chunk = new Chunk(chunkLength);
@@ -91,7 +93,9 @@ public class Sender {
 	}
 	
 	public void close() {
-		serverSocket.close();
+		if (!serverSocket.isClosed()) {
+			serverSocket.close();
+		}
 	}
 	
 	private class ReceiverInfo {
@@ -118,7 +122,9 @@ public class Sender {
 		public void setPort(int port) {
 			this.port = port;
 		}
-		
-		
+	}
+	
+	public interface SendChunkEndCallback {
+		void execute();
 	}
 }
