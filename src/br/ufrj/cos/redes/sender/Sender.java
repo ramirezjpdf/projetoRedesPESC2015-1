@@ -7,17 +7,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import br.ufrj.cos.redes.fileAccess.Chunk;
 import br.ufrj.cos.redes.fileAccess.FileChunkRetriever;
 import br.ufrj.cos.redes.packet.InitPacket;
+import br.ufrj.cos.redes.packet.Package;
 
 public class Sender {
 	private DatagramSocket serverSocket;
 	private int  port;
+	private ReceiverInfo receiverInfo;
 	
 	private final long DELAY = 20; //milliseconds
 	private final long INTERVAL = 20; //milliseconds
@@ -36,7 +40,7 @@ public class Sender {
 		byte[] recvInitPackeByteArray = new byte[1024];
 		DatagramPacket pkg = new DatagramPacket(recvInitPackeByteArray, recvInitPackeByteArray.length);
 		serverSocket.receive(pkg);
-		
+		receiverInfo = new ReceiverInfo(pkg.getPort(), pkg.getAddress());
 		ObjectInputStream objInputStream = new ObjectInputStream(new ByteArrayInputStream(pkg.getData()));
 		
 		try {
@@ -49,7 +53,7 @@ public class Sender {
 		
 	}
 	
-	public void initiateSending(FileChunkRetriever chunkRetriever) {
+	public void initiateSending(FileChunkRetriever chunkRetriever, int chunkLength) {
 		final Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
@@ -58,13 +62,24 @@ public class Sender {
 					timer.cancel();
 				}
 				
-				Chunk chunk = null;
+				Chunk chunk = new Chunk(chunkLength);
 				try {
-					if (chunkRetriever.getNextChunk(chunk)) {
+					if (chunkRetriever.getNextChunk(chunk)) {						
 						ByteArrayOutputStream byteArrayOStream = new ByteArrayOutputStream();
 						ObjectOutputStream  objOutputStream= new ObjectOutputStream(byteArrayOStream);
-						objOutputStream.writeObject(chunk);
-						DatagramPacket sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(), byteArrayOStream.size());
+						
+						Package pkg = new Package(chunk);
+						pkg.setFileSize(chunkRetriever.getTotalFileSize());
+						pkg.setTimeStamp(Calendar.getInstance().getTimeInMillis());
+						
+						objOutputStream.writeObject(pkg);
+						DatagramPacket sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(),
+																	byteArrayOStream.size(),
+																	receiverInfo.address,
+																	receiverInfo.getPort());
+						if (serverSocket.isClosed()) {
+							serverSocket = new DatagramSocket(port);
+						}
 						serverSocket.send(sendPkt);
 					}
 				} catch (IOException e) {
@@ -73,5 +88,37 @@ public class Sender {
 				}
 			}
 		}, DELAY, INTERVAL);
+	}
+	
+	public void close() {
+		serverSocket.close();
+	}
+	
+	private class ReceiverInfo {
+		private InetAddress address;
+		private int port;
+
+		public ReceiverInfo(int port, InetAddress address) {
+			this.port = port;
+			this.address = address;
+		}
+
+		public InetAddress getAddress() {
+			return address;
+		}
+
+		public void setAddress(InetAddress address) {
+			this.address = address;
+		}
+
+		public int getPort() {
+			return port;
+		}
+
+		public void setPort(int port) {
+			this.port = port;
+		}
+		
+		
 	}
 }
