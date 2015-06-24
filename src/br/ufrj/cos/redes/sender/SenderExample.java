@@ -21,9 +21,15 @@ public class SenderExample {
 			}
 			System.out.println("Message OK!");
 			System.out.println("Requested File is " + initPkt.getFileName());
-			System.out.println("Initiating sending of chunks");
+			System.out.println("Sending chunks at constant rate");
 			FileChunkRetriever chunkRetriever = new RandomFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH);
-			sender.initiateSending(chunkRetriever, CHUNK_LENGTH);
+			sender.sendChunksAtConstantRate(chunkRetriever, CHUNK_LENGTH, new Sender.SendChunkEndCallback() {
+				@Override
+				public void execute() {
+					System.out.println("All chunks sended");	
+					sender.close();
+				}
+			});
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			return;

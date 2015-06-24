@@ -56,6 +56,7 @@ public class ReceiverForSenderExample {
 				System.out.println("chunk number " + pkg.getChunk().getSeqNum() + " received");
 			} while(accFileSize < totalFileSize);
 			
+			System.out.println("All chunks received");
 			Collections.sort(chunks);
 			for (Chunk chunk : chunks) {
 				if (chunk.getActualChunkLength() == chunk.getBytes().length) {
