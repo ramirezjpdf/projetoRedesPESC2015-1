@@ -1,6 +1,12 @@
 package br.ufrj.cos.redes.fileAccess;
 
-public class Chunk implements Comparable<Chunk>{
+import java.io.Serializable;
+
+public class Chunk implements Comparable<Chunk>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private long seqNum;
 	private byte[] bytes;
 	private int actualChunkLength;
