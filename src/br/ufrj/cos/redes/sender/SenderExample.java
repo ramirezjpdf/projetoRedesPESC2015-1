@@ -5,12 +5,14 @@ import java.io.IOException;
 
 import br.ufrj.cos.redes.fileAccess.FileChunkRetriever;
 import br.ufrj.cos.redes.fileAccess.RandomFileChunkRetriever;
+import br.ufrj.cos.redes.fileAccess.SequencialFileChunkRetriever;
 import br.ufrj.cos.redes.packet.InitPacket;
 
 public class SenderExample {
 	public static void main(String[] args) {
 		int PORT = 29920;
 		int CHUNK_LENGTH = 160;
+		double success = 0.9;
 		Sender sender = new Sender(PORT);
 		
 		try {
@@ -22,7 +24,16 @@ public class SenderExample {
 			System.out.println("Message OK!");
 			System.out.println("Requested File is " + initPkt.getFileName());
 			System.out.println("Sending chunks at constant rate");
-			FileChunkRetriever chunkRetriever = new RandomFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH);
+//			FileChunkRetriever chunkRetriever = new RandomFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH);
+//			sender.sendChunksAtConstantRate(chunkRetriever, CHUNK_LENGTH, new Sender.SendChunkEndCallback() {
+//				@Override
+//				public void execute() {
+//					System.out.println("All chunks sended");	
+//					sender.close();
+//				}
+//			});
+			
+			FileChunkRetriever chunkRetriever = new SequencialFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH, success);
 			sender.sendChunksAtConstantRate(chunkRetriever, CHUNK_LENGTH, new Sender.SendChunkEndCallback() {
 				@Override
 				public void execute() {
@@ -30,6 +41,7 @@ public class SenderExample {
 					sender.close();
 				}
 			});
+			
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			return;
