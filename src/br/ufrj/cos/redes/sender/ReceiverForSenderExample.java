@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -14,13 +15,14 @@ import java.util.Collections;
 import java.util.List;
 
 import br.ufrj.cos.redes.fileAccess.Chunk;
+import br.ufrj.cos.redes.packet.EndPacket;
 import br.ufrj.cos.redes.packet.InitPacket;
 import br.ufrj.cos.redes.packet.Package;
 
 public class ReceiverForSenderExample {
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		String REQUESTED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt";
-		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
+		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";	
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
 		
@@ -35,26 +37,41 @@ public class ReceiverForSenderExample {
 		DatagramSocket clientSocket = new DatagramSocket();
 		
 		List<Chunk> chunks = new ArrayList<Chunk>();
-		long totalFileSize = 0;
-		long accFileSize = 0;
 		FileOutputStream foStream = new FileOutputStream(RECEIVED_FILE_NAME);
 		
 		System.out.println("Requesting file " + REQUESTED_FILE_NAME);
 		clientSocket.send(sendPkt);
+		
+		boolean keep = true;
+		
 		try {
-			do {
+			while(keep) {
 				System.out.println("Waiting for chunk...");
 				byte[] recvBytes = new byte[1024];
 				DatagramPacket recvPkt = new DatagramPacket(recvBytes, recvBytes.length);
 				clientSocket.receive(recvPkt);
 				
 				ObjectInputStream objIStream = new ObjectInputStream(new ByteArrayInputStream(recvPkt.getData()));
-				Package pkg = (Package) objIStream.readObject();
-				totalFileSize = (totalFileSize == 0) ? pkg.getFileSize() : totalFileSize;
-				accFileSize += pkg.getChunk().getActualChunkLength();
-				chunks.add(pkg.getChunk());
-				System.out.println("chunk number " + pkg.getChunk().getSeqNum() + " received");
-			} while(accFileSize < totalFileSize);
+
+				Package pkg = null;
+				Object obj = objIStream.readObject();
+				try {					
+					pkg = (Package) obj;					
+				} catch (ClassCastException e) {
+					EndPacket endPkt = null;					
+					try {
+						endPkt = (EndPacket) obj;
+					} catch (Exception ee) {
+						System.out.println("Error in init object");
+					}					
+					keep = !endPkt.getSendedEndMsg().equals(EndPacket.END_MSG);					
+				}
+				
+				if(keep) {
+					chunks.add(pkg.getChunk());
+					System.out.println("chunk number " + pkg.getChunk().getSeqNum() + " received");
+				}
+			}
 			
 			System.out.println("All chunks received");
 			Collections.sort(chunks);
