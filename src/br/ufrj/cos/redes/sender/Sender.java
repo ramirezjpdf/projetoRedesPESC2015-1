@@ -15,6 +15,7 @@ import java.util.TimerTask;
 
 import br.ufrj.cos.redes.fileAccess.Chunk;
 import br.ufrj.cos.redes.fileAccess.FileChunkRetriever;
+import br.ufrj.cos.redes.packet.EndPacket;
 import br.ufrj.cos.redes.packet.InitPacket;
 import br.ufrj.cos.redes.packet.Package;
 
@@ -58,8 +59,26 @@ public class Sender {
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				if (!chunkRetriever.hasNext()) {
-					timer.cancel();
+				DatagramPacket sendPkt = null;
+				
+				if (!chunkRetriever.hasNext()) {					
+					try {
+						ByteArrayOutputStream byteOstream = new ByteArrayOutputStream();
+						ObjectOutputStream objOStream = new ObjectOutputStream(byteOstream);
+
+						EndPacket endPkt = new EndPacket(EndPacket.END_MSG);
+						objOStream.writeObject(endPkt);
+						byte[] sendBytes = byteOstream.toByteArray();
+						
+						sendPkt = new DatagramPacket(sendBytes, sendBytes.length, receiverInfo.getAddress(), receiverInfo.getPort());
+						
+						serverSocket.send(sendPkt);
+					} catch (IOException e) {
+						//TODO Decide what to do
+						e.printStackTrace();
+					}		
+					
+					timer.cancel();					
 					callback.execute();
 					return;
 				}
@@ -75,10 +94,10 @@ public class Sender {
 						pkg.setTimeStamp(Calendar.getInstance().getTimeInMillis());
 						
 						objOutputStream.writeObject(pkg);
-						DatagramPacket sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(),
-																	byteArrayOStream.size(),
-																	receiverInfo.address,
-																	receiverInfo.getPort());
+						sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(),
+													 byteArrayOStream.size(),
+													 receiverInfo.address,
+													 receiverInfo.getPort());
 						if (serverSocket.isClosed()) {
 							serverSocket = new DatagramSocket(port);
 						}
