@@ -8,23 +8,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import br.ufrj.cos.redes.constant.Constants;
+
 public class RandomFileChunkRetriever implements FileChunkRetriever {
 	private RandomAccessFile fileReader;
 	private long fileLength;
 	private int chunkCounter;
 	private long chunkLength;
-	private List<Long> chunkIdList;
+	private List<Integer> chunkSeqNumList;
 	
 	public RandomFileChunkRetriever(File file, long chunkLength) throws FileNotFoundException {
 		fileReader = new RandomAccessFile(file, "r");
 		fileLength = file.length();
 		chunkCounter = 0;
 		this.chunkLength = chunkLength;
-		chunkIdList = new ArrayList<Long>();
-		for (long i = 0; i < (fileLength / chunkLength) + 1; i++) {
-			chunkIdList.add(new Long(i));
+		chunkSeqNumList = new ArrayList<Integer>();
+		for (int i = Constants.INITIAL_CHUNK_SEQ_NUM; i < Constants.INITIAL_CHUNK_SEQ_NUM + (fileLength / chunkLength) + 1; i++) {
+			chunkSeqNumList.add(new Integer(i));
 		}
-		Collections.shuffle(chunkIdList);
+		Collections.shuffle(chunkSeqNumList);
 	}
 	
 	@Override
@@ -33,9 +35,9 @@ public class RandomFileChunkRetriever implements FileChunkRetriever {
 			throw new IllegalArgumentException("The byte array passed to this methos must have length = " + chunkLength);
 		}
 		
-		long chunkId = chunkIdList.get(chunkCounter++);
-		chunk.setSeqNum(chunkId);
-		fileReader.seek(chunkId * chunkLength);
+		int chunkSeqNum = chunkSeqNumList.get(chunkCounter++);
+		chunk.setSeqNum(chunkSeqNum);
+		fileReader.seek(chunkSeqNum * chunkLength);
 		chunk.setActualChunkLength(fileReader.read(chunk.getBytes()));
 		fileReader.seek(0);
 		return true;
@@ -43,7 +45,7 @@ public class RandomFileChunkRetriever implements FileChunkRetriever {
 
 	@Override
 	public boolean hasNext() {
-		return chunkCounter < chunkIdList.size();
+		return chunkCounter < chunkSeqNumList.size();
 	}
 	
 	@Override
