@@ -46,7 +46,11 @@ public class ReceiverForSenderExample {
 		
 		try {
 			while(keep) {
-				System.out.println("Waiting for chunk...");
+				if (chunks.size() > 49) {
+					System.out.println("Waiting end msg...");
+				} else {
+					System.out.println("Waiting for chunk...");
+				}
 				byte[] recvBytes = new byte[1024];
 				DatagramPacket recvPkt = new DatagramPacket(recvBytes, recvBytes.length);
 				clientSocket.receive(recvPkt);
@@ -55,15 +59,18 @@ public class ReceiverForSenderExample {
 
 				Package pkg = null;
 				Object obj = objIStream.readObject();
+				
 				try {					
 					pkg = (Package) obj;					
 				} catch (ClassCastException e) {
 					EndPacket endPkt = null;					
 					try {
+						System.out.println("End Msg received");
 						endPkt = (EndPacket) obj;
 					} catch (Exception ee) {
 						System.out.println("Error in init object");
-					}					
+					}
+					System.out.println(endPkt.getSendedEndMsg());
 					keep = !endPkt.getSendedEndMsg().equals(EndPacket.END_MSG);					
 				}
 				

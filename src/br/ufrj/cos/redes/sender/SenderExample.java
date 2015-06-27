@@ -25,20 +25,24 @@ public class SenderExample {
 			System.out.println("Requested File is " + initPkt.getFileName());
 			System.out.println("Sending chunks at constant rate");
 //			FileChunkRetriever chunkRetriever = new RandomFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH);
-//			sender.sendChunksAtConstantRate(chunkRetriever, CHUNK_LENGTH, new Sender.SendChunkEndCallback() {
-//				@Override
-//				public void execute() {
-//					System.out.println("All chunks sended");	
-//					sender.close();
-//				}
-//			});
 			
 			FileChunkRetriever chunkRetriever = new SequencialFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH, success);
 			sender.sendChunksAtConstantRate(chunkRetriever, CHUNK_LENGTH, new Sender.SendChunkEndCallback() {
 				@Override
 				public void execute() {
-					System.out.println("All chunks sended");	
-					sender.close();
+					System.out.println("All chunks sended");
+					try {
+						Thread.sleep(20); //wait a bit, else the receiver cannot get the end msg.
+						System.out.println("Sending end msg...");
+						sender.sendEndMsg();
+						System.out.println("End msg sended.");
+					} catch (IOException e) {
+						System.out.println("Could not send end msg");
+					} catch (InterruptedException e) {
+						System.out.println("sleep interrupted");
+					} finally {
+						sender.close();
+					}
 				}
 			});
 			
