@@ -96,7 +96,7 @@ public class Sender {
 						objOutputStream.writeObject(pkg);
 						sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(),
 													 byteArrayOStream.size(),
-													 receiverInfo.address,
+													 receiverInfo.getAddress(),
 													 receiverInfo.getPort());
 						if (serverSocket.isClosed()) {
 							serverSocket = new DatagramSocket(port);
@@ -109,6 +109,20 @@ public class Sender {
 				}
 			}
 		}, DELAY, INTERVAL);
+	}
+	
+	public void sendEndMsg() throws IOException {
+		EndPacket endPkt = new EndPacket(EndPacket.END_MSG);
+		ByteArrayOutputStream outByteArray = new ByteArrayOutputStream();
+		new ObjectOutputStream(outByteArray).writeObject(endPkt);
+		DatagramPacket endDatagram = new DatagramPacket(outByteArray.toByteArray(),
+														outByteArray.size(),
+														receiverInfo.getAddress(),
+														receiverInfo.getPort());
+		if (serverSocket.isClosed()) {
+			serverSocket = new DatagramSocket(port);
+		}
+		serverSocket.send(endDatagram);
 	}
 	
 	public void close() {
@@ -130,16 +144,8 @@ public class Sender {
 			return address;
 		}
 
-		public void setAddress(InetAddress address) {
-			this.address = address;
-		}
-
 		public int getPort() {
 			return port;
-		}
-
-		public void setPort(int port) {
-			this.port = port;
 		}
 	}
 	
