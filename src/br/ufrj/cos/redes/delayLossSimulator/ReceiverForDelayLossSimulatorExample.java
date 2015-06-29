@@ -15,6 +15,9 @@ public class ReceiverForDelayLossSimulatorExample {
 		String REQUESTED_FILE_NAME = "C:\\Users\\Pedro Freitas\\Desktop\\mac.pdf";
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
+		double F = 0.1;
+		double RTT = 600;
+		double LAMBDA = 50;
 		
 		ByteArrayOutputStream byteOstream = new ByteArrayOutputStream();
 		ObjectOutputStream objOStream = new ObjectOutputStream(byteOstream);
@@ -29,7 +32,7 @@ public class ReceiverForDelayLossSimulatorExample {
 		System.out.println("Requesting file " + REQUESTED_FILE_NAME);
 		clientSocket.send(sendPkt);
 		
-		DelayLossSimulator.receive(clientSocket);
+		new DelayLossSimulator(F, LAMBDA, RTT).receive(clientSocket, null);
 		
 	}
 }
