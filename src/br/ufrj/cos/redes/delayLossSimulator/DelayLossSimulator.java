@@ -12,21 +12,27 @@ import java.util.TreeMap;
 import br.ufrj.cos.redes.fileAccess.Chunk;
 import br.ufrj.cos.redes.packet.EndPacket;
 import br.ufrj.cos.redes.packet.Package;
+import br.ufrj.cos.redes.receiver.Buffer;
 
 public class DelayLossSimulator {
+	
+	private double F;
+	private double LAMBDA;
+	private double RTT;
 
-	public static void receive(DatagramSocket clientSocket) throws IOException, ClassNotFoundException {		
-		double fail = 0.1;
-		double LAMBDA = 50;
-		double RTT = 600;
-		
+	public DelayLossSimulator(double F, double LAMBDA, double RTT) {
+		this.F = F;
+		this.LAMBDA = LAMBDA;
+		this.RTT = RTT;
+	}
+
+	public void receive(DatagramSocket clientSocket, Buffer buffer) throws IOException, ClassNotFoundException {		
 		Map<Double, Long> tnXseqNum = new TreeMap<Double, Long>();
 		
 		boolean keep = true;
 		
 		try {
 			while(keep) {				
-				System.out.println("Waiting for chunk...");
 				byte[] recvBytes = new byte[1024];
 				DatagramPacket recvPkt = new DatagramPacket(recvBytes, recvBytes.length);
 				clientSocket.receive(recvPkt);
@@ -50,7 +56,7 @@ public class DelayLossSimulator {
 				if(keep) {				
 					Chunk chunk = pkg.getChunk();
 				
-					boolean available = (Math.random() < fail) ? false : true;			
+					boolean available = (Math.random() < F) ? false : true;			
 					chunk.setAvailable(available);
 					
 					if(chunk.isAvailable()) {
