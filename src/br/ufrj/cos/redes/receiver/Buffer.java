@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import br.ufrj.cos.redes.constant.Constants;
 import br.ufrj.cos.redes.fileAccess.Chunk;
 
-public class Buffer extends Observable {
+public class Buffer {
 
 	private SortedSet<Chunk> buffer;
 	private int B;
