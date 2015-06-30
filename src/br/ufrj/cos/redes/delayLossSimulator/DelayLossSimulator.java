@@ -6,7 +6,11 @@ import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
 
 import br.ufrj.cos.redes.fileAccess.Chunk;
@@ -27,7 +31,7 @@ public class DelayLossSimulator {
 	}
 
 	public void receive(DatagramSocket clientSocket, Buffer buffer) throws IOException, ClassNotFoundException {		
-		Map<Double, Long> tnXseqNum = new TreeMap<Double, Long>();
+		TreeMap<Double, Chunk> tnXChunk = new TreeMap<Double, Chunk>();
 		
 		boolean keep = true;
 		
@@ -46,11 +50,13 @@ public class DelayLossSimulator {
 				} catch (ClassCastException e) {
 					EndPacket endPkt = null;					
 					try {
+						System.out.println("End Msg received");
 						endPkt = (EndPacket) obj;
 					} catch (Exception ee) {
 						System.out.println("Error in init object");
 					}					
-					keep = !endPkt.getSendedEndMsg().equals(EndPacket.END_MSG);					
+					keep = !endPkt.getSendedEndMsg().equals(EndPacket.END_MSG);	
+					buffer.alertEnd();
 				}
 				
 				if(keep) {				
@@ -66,11 +72,23 @@ public class DelayLossSimulator {
 						double tn = pkg.getTimeStamp() + RTT/2 + x;		
 						pkg.setTimeStamp(tn);
 						
-						tnXseqNum.put(pkg.getTimeStamp(), chunk.getSeqNum());
+						tnXChunk.put(pkg.getTimeStamp(), chunk);
 						
-						//TODO Send to Buffer when the current time was equal to the new timestamp
-
-						System.out.println("chunk number " + pkg.getChunk().getSeqNum() + " received");
+						int firstTn = (int) Math.round(tnXChunk.firstKey());
+						Entry firstEntry = tnXChunk.firstEntry();
+						
+						Timer timer = new Timer();
+						timer.schedule(new TimerTask() {
+							
+							@Override
+							public void run() {
+								buffer.add((Chunk) tnXChunk.firstEntry().getValue());								
+								tnXChunk.remove(firstEntry);
+								System.out.println("chunk number " + ((Chunk) firstEntry).getSeqNum() + " send to buffer at " + firstTn + "ms");
+								timer.cancel();
+							}
+						}, firstTn, firstTn);
+						
 						
 					} else {
 						System.out.println("chunk number " + chunk.getSeqNum() + " was lost");
@@ -78,8 +96,8 @@ public class DelayLossSimulator {
 				}				
 			}
 		
-			printMap(tnXseqNum);
-			System.out.println("number of chunks received: " + tnXseqNum.size());
+			printMap(tnXChunk);
+			System.out.println("number of chunks received: " + tnXChunk.size());
 			System.out.println("All chunks received");
 			
 		} finally {
@@ -92,7 +110,8 @@ public class DelayLossSimulator {
 		Iterator iterator = map.entrySet().iterator(); 
 		while(iterator.hasNext()) {
 			Map.Entry entry = (Map.Entry) iterator.next();
-			System.out.println("TimeStamp: " + entry.getKey() + " SeqNum: " + entry.getValue());
+			System.out.println("List of cunks received");
+			System.out.println("TimeStamp: " + entry.getKey() + " SeqNum: " + ((Chunk) entry.getValue()).getSeqNum());
 		}
 	}
 	
