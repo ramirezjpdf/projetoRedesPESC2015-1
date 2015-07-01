@@ -13,13 +13,16 @@ import br.ufrj.cos.redes.receiver.Buffer;
 
 public class DelayLossSimulatorDummyTabajara extends DelayLossSimulator {
 
-	public DelayLossSimulatorDummyTabajara(double F, double LAMBDA, double RTT) {
-		super(F, LAMBDA, RTT);
+	private Buffer buffer;
+	
+	public DelayLossSimulatorDummyTabajara(double F, double LAMBDA, long RTT, Buffer buffer) {
+		super(F, LAMBDA, RTT, buffer);
+		this.buffer = buffer;
 		// I'm dummy. I will do nothing with these parameters. 
 	}
 
 	@Override
-	public void receive(DatagramSocket clientSocket, Buffer buffer) throws IOException,
+	public void receive(DatagramSocket clientSocket) throws IOException,
 			ClassNotFoundException {
 		boolean keep = true;
 		while(keep) {				
