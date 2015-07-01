@@ -21,7 +21,8 @@ public class SequencialFileChunkRetriever implements FileChunkRetriever {
 		this.chunkLength = chunkLength;
 		this.success = success;
 		totalChunk  = (int) Math.ceil((double) fileLength / (double) chunkLength);
-		System.out.println("Number of chunks: "+ totalChunk);
+		System.out.println("Total of chunks: "+ totalChunk);
+		System.out.println("r = " + success);
 	}	
 	
 	public Chunk lottery(Chunk chunk, double success) {
