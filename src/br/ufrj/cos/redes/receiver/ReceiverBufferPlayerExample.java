@@ -13,13 +13,16 @@ public class ReceiverBufferPlayerExample {
 		int N_CHUNKS = 50;
 		int B = 3;
 		int B_WINDOW = 6;
-		String REQUESTED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt";
-		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
+//		String REQUESTED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt";
+		String REQUESTED_FILE_NAME = "C:\\Users\\Pedro Freitas\\Desktop\\Declaracao Bras.pdf";
+//		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
+		String RECEIVED_FILE_NAME = "C:\\Users\\Pedro Freitas\\Desktop\\Declaracao Bras2.pdf";
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
 		
 		Buffer buffer = new Buffer(B, B_WINDOW);
-		DelayLossSimulator simulator = new DelayLossSimulatorDummyTabajara(0, 0, 0);
+//		DelayLossSimulator simulator = new DelayLossSimulatorDummyTabajara(0, 0, 0, buffer);
+		DelayLossSimulator simulator = new DelayLossSimulator(0, 5, 600, buffer);
 		Player player = new Player(new FileOutputStream(RECEIVED_FILE_NAME));
 		
 		DatagramSocket clientSocket = new DatagramSocket();
