@@ -23,9 +23,9 @@ public class SequencialFileChunkRetrieverExample {
 				} else {
 					sostream.write(chunk.getBytes(), 0, chunk.getActualChunkLength());
 				}
-				System.out.println("Chunk " + chunk.getSeqNum() +" available.");
+				System.out.println("chunk number " + chunk.getSeqNum() +" available");
 			} else {
-				System.out.println("Chunk " + chunk.getSeqNum() +" not available.");
+				System.out.println("chunk number " + chunk.getSeqNum() +" not available");
 			}
 		}
 		
