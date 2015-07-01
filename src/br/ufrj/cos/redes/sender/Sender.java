@@ -27,6 +27,8 @@ public class Sender {
 	private final long DELAY = 20; //milliseconds
 	private final long INTERVAL = 20; //milliseconds
 	
+	private int count = 0;
+	
 	public Sender(int port) {
 		this.port = port;
 	}
@@ -91,7 +93,7 @@ public class Sender {
 						
 						Package pkg = new Package(chunk);
 						pkg.setFileSize(chunkRetriever.getTotalFileSize());
-						pkg.setTimeStamp(Calendar.getInstance().getTimeInMillis());
+						chunk.setTransTimeStamp(20 + (20*count));
 						
 						objOutputStream.writeObject(pkg);
 						sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(),
