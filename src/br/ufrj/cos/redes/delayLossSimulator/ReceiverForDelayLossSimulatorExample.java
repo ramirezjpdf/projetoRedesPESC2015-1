@@ -16,7 +16,7 @@ public class ReceiverForDelayLossSimulatorExample {
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
 		double F = 0.1;
-		double RTT = 600;
+		long RTT = 600;
 		double LAMBDA = 50;
 		
 		ByteArrayOutputStream byteOstream = new ByteArrayOutputStream();
@@ -32,7 +32,7 @@ public class ReceiverForDelayLossSimulatorExample {
 		System.out.println("Requesting file " + REQUESTED_FILE_NAME);
 		clientSocket.send(sendPkt);
 		
-		new DelayLossSimulator(F, LAMBDA, RTT).receive(clientSocket, null);
+		new DelayLossSimulator(F, LAMBDA, RTT, null).receive(clientSocket);
 		
 	}
 }
