@@ -14,7 +14,6 @@ public class Package implements Serializable {
 	private Chunk chunk;
 	
 	private long fileSize;
-	private double timeStamp;
 	
 	public Package(Chunk chunk) {
 		this.chunk = chunk;
@@ -34,14 +33,6 @@ public class Package implements Serializable {
 	
 	public void setFileSize(long fileSize) {
 		this.fileSize = fileSize;
-	}
-
-	public double getTimeStamp() {
-		return timeStamp;
-	}
-
-	public void setTimeStamp(double timeStamp) {
-		this.timeStamp = timeStamp;
 	}
 
 	
