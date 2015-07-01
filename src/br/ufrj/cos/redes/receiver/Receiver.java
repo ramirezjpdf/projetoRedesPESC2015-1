@@ -32,7 +32,7 @@ public class Receiver {
 			@Override
 			public void run() {
 				try {
-					simulator.receive(clientSocket, buffer);
+					simulator.receive(clientSocket);
 				} catch (ClassNotFoundException e) {
 					System.out.println("Error in simulator, ClassNotFoundException");
 					e.printStackTrace();
