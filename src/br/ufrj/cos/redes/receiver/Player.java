@@ -21,7 +21,7 @@ public class Player {
 	
 	public void play(Chunk chunk) throws IOException {
 		Calendar calendar = Calendar.getInstance();
-		chunk.setPlayedTimeStamp(calendar.getTimeInMillis());
+		chunk.setPlayedTimeStamp(calendar.getTimeInMillis() - chunk.getPlayedTimeStamp());
 		System.out.println(formatter.format(calendar.getTime()) + ": Playing chunk with seqNum " + chunk.getSeqNum());
 		playerOStream.write(chunk.getBytes(), 0, chunk.getActualChunkLength());
 		log(chunk);
