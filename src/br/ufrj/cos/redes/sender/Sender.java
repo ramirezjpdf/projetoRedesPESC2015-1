@@ -9,7 +9,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -60,26 +59,8 @@ public class Sender {
 		final Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
-			public void run() {
-				DatagramPacket sendPkt = null;
-				
+			public void run() {				
 				if (!chunkRetriever.hasNext()) {					
-					try {
-						ByteArrayOutputStream byteOstream = new ByteArrayOutputStream();
-						ObjectOutputStream objOStream = new ObjectOutputStream(byteOstream);
-
-						EndPacket endPkt = new EndPacket(EndPacket.END_MSG);
-						objOStream.writeObject(endPkt);
-						byte[] sendBytes = byteOstream.toByteArray();
-						
-						sendPkt = new DatagramPacket(sendBytes, sendBytes.length, receiverInfo.getAddress(), receiverInfo.getPort());
-						
-						serverSocket.send(sendPkt);
-					} catch (IOException e) {
-						//TODO Decide what to do
-						e.printStackTrace();
-					}		
-					
 					timer.cancel();					
 					callback.execute();
 					return;
@@ -93,20 +74,19 @@ public class Sender {
 						
 						Package pkg = new Package(chunk);
 						pkg.setFileSize(chunkRetriever.getTotalFileSize());
-						chunk.setTransTimeStamp(20 + (20*count));
+						chunk.setTransTimeStamp(INTERVAL + (INTERVAL*count++));
 						
 						objOutputStream.writeObject(pkg);
-						sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(),
-													 byteArrayOStream.size(),
-													 receiverInfo.getAddress(),
-													 receiverInfo.getPort());
+						DatagramPacket sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(),
+													 				byteArrayOStream.size(),
+												 					receiverInfo.getAddress(),
+												 					receiverInfo.getPort());
 						if (serverSocket.isClosed()) {
 							serverSocket = new DatagramSocket(port);
 						}
 						serverSocket.send(sendPkt);
 					}
 				} catch (IOException e) {
-					//TODO Decide what to do
 					e.printStackTrace();
 				}
 			}
