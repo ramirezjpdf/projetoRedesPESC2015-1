@@ -11,18 +11,18 @@ public class SequencialFileChunkRetriever implements FileChunkRetriever {
 	private int chunkCounter;
 	private long chunkLength;
 	private int totalChunk;
-	private double success;
+	private double r;
 
-	public SequencialFileChunkRetriever(File file, long chunkLength, double success) throws FileNotFoundException {
+	public SequencialFileChunkRetriever(File file, long chunkLength, double r) throws FileNotFoundException {
 		fileReader = new RandomAccessFile(file, "r");
 		fileLength = file.length();
 		System.out.println("File size: " + fileLength + " bytes");
 		chunkCounter = 0;
 		this.chunkLength = chunkLength;
-		this.success = success;
+		this.r = r;
 		totalChunk  = (int) Math.ceil((double) fileLength / (double) chunkLength);
 		System.out.println("Total of chunks: "+ totalChunk);
-		System.out.println("r = " + success);
+		System.out.println("r = " + r);
 	}	
 	
 	public Chunk lottery(Chunk chunk, double success) {
@@ -37,9 +37,9 @@ public class SequencialFileChunkRetriever implements FileChunkRetriever {
 			throw new IllegalArgumentException("The byte array passed to this methos must have length = " + chunkLength);
 		}
 
-		chunk = lottery(chunk, this.success);
 		long chunkId = chunkCounter++;
 		chunk.setSeqNum(chunkId);	
+		chunk = lottery(chunk, this.r);
 		
 		if(chunk.isAvailable()) {		
 			fileReader.seek(chunkId * chunkLength);
