@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import br.ufrj.cos.redes.fileAccess.Chunk;
 
@@ -35,10 +36,10 @@ public class ChunkList {
 	}
 	
 	public void print() {
-		Iterator iterator = chunkList.entrySet().iterator(); 
+		Iterator<Entry<Long, Chunk>> iterator = chunkList.entrySet().iterator(); 
 		System.out.println("List of chunks passed in simulator:");
 		while(iterator.hasNext()) {
-			Map.Entry entry = (Map.Entry) iterator.next();
+			Map.Entry<Long, Chunk> entry = iterator.next();
 			System.out.println("(tn = " + entry.getKey() + ", seqNum = " + ((Chunk) entry.getValue()).getSeqNum() + ")");
 		}		
 	}

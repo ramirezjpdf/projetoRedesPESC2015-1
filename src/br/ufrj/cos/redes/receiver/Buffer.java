@@ -1,6 +1,5 @@
 package br.ufrj.cos.redes.receiver;
 
-import java.util.Observable;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
