@@ -25,10 +25,14 @@ public class ChunkList {
 		
 		return chunk;		
 	}
-		
+
 	public boolean isOver() {
 		return chunkList.isEmpty();
-	}	
+	}
+	
+	public boolean hasChunkWithTn(Long tn) {
+		return chunkList.containsKey(tn);
+	}
 	
 	public void print() {
 		Iterator iterator = chunkList.entrySet().iterator(); 
