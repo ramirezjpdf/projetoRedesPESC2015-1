@@ -11,7 +11,7 @@ import br.ufrj.cos.redes.delayLossSimulator.DelayLossSimulatorDummyTabajara;
 public class ReceiverBufferPlayerExample {
 	public static void main(String[] args) throws IOException {
 		int N_CHUNKS = 50;
-		int B = 3;
+		int B = 1;
 		int B_WINDOW = 6;
 		
 		double F = 0.0;
@@ -27,7 +27,7 @@ public class ReceiverBufferPlayerExample {
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
 		
-		Buffer buffer = new Buffer(N_CHUNKS, N_CHUNKS);
+		Buffer buffer = new Buffer(B, B);
 		DelayLossSimulator simulator = new DelayLossSimulator(F, LAMBDA, RTT, buffer);
 		Player player = new Player(new FileOutputStream(RECEIVED_FILE_NAME), new FileOutputStream(LOG_FILE_NAME));
 		

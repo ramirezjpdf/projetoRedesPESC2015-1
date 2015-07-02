@@ -24,8 +24,8 @@ public class SenderExample {
 			System.out.println("Message OK!");
 			System.out.println("Requested File is " + initPkt.getFileName());
 			System.out.println("Sending chunks at constant rate");
-			FileChunkRetriever chunkRetriever = new RandomFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH);
 			
+			FileChunkRetriever chunkRetriever = new RandomFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH);	
 //			FileChunkRetriever chunkRetriever = new SequencialFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH, success);
 			sender.sendChunksAtConstantRate(chunkRetriever, CHUNK_LENGTH, new Sender.SendChunkEndCallback() {
 				@Override
