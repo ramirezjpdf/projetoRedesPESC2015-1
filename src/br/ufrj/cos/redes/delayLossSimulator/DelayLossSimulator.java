@@ -71,18 +71,36 @@ public class DelayLossSimulator {
 						long x = (long) (generator.getSample()*1000);
 						
 						long tn = chunk.getTransTimeStamp() + RTT/2 + x;	
-						chunk.setRecTimeStamp(tn);
 						
-						chunkList.add(tn, chunk);
+						//this prevents repetition of tn
+						while (chunkList.hasChunkWithTn(tn)) {
+							tn++;
+						}
+						// unfortunately we need a final variable inside the run method. 
+						long finalTn = tn; 
+						chunk.setRecTimeStamp(finalTn);
+						// gambiarra we need this to find the real played timestamp
+						chunk.setPlayedTimeStamp(Calendar.getInstance().getTimeInMillis());
+						chunkList.add(finalTn, chunk);
 						
 						Timer timer = new Timer();
 						timer.schedule(new TimerTask() {
 							
 							@Override
 							public void run() {
-								System.out.println("tn = " + tn);
+								System.out.println("tn = " + finalTn);
+								Chunk c;
+								if (chunkList.hasChunkWithTn(finalTn)) {
+									c = chunkList.getChunk(finalTn);
+									if (c != null) {
+										System.out.println("chunk for tn = " + finalTn + ": chunk.seqNum = " + c.getSeqNum());
+										buffer.add(c);
+									}
+									else {
+										System.out.println("chunk for tn = " + finalTn + "is ====NULL====");
+									}
+								}
 //								chunkList.print();
-								buffer.add((Chunk) chunkList.getChunk(tn));
 							}
 						}, tn);
 						
