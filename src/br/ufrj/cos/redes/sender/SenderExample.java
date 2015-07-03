@@ -10,10 +10,12 @@ import br.ufrj.cos.redes.packet.InitPacket;
 
 public class SenderExample {
 	public static void main(String[] args) {
+		boolean isSequential = (args.length == 2 && args[1] != null);
+		
 		int PORT = 29920;
 		int CHUNK_LENGTH = 160;
-		double success = 0.9;
-		Sender sender = new Sender(PORT);
+		double r = isSequential ? Double.parseDouble(args[1]) : 1.0;
+		Sender sender = new Sender(PORT);		
 		
 		try {
 			System.out.println("Initiating Sender");
@@ -25,8 +27,9 @@ public class SenderExample {
 			System.out.println("Requested File is " + initPkt.getFileName());
 			System.out.println("Sending chunks at constant rate");
 			
-			FileChunkRetriever chunkRetriever = new RandomFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH);	
-//			FileChunkRetriever chunkRetriever = new SequencialFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH, success);
+			
+			FileChunkRetriever chunkRetriever = isSequential ? new SequencialFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH, r)
+														: new RandomFileChunkRetriever(new File(initPkt.getFileName()), CHUNK_LENGTH);
 			sender.sendChunksAtConstantRate(chunkRetriever, CHUNK_LENGTH, new Sender.SendChunkEndCallback() {
 				@Override
 				public void execute() {
