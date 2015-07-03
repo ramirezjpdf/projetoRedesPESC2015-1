@@ -106,7 +106,7 @@ public class DelayLossSimulator {
 						
 						
 					} else {
-						System.out.println("chunk with number " + chunk.getSeqNum() + " was lost in receive size simulator");
+						System.out.println("chunk with number " + chunk.getSeqNum() + " was lost in the simulator");
 					}					
 				}				
 			}
