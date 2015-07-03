@@ -61,6 +61,7 @@ public class Receiver {
 				if (buffer.isOver()) {
 					System.out.println("Buffer is over.");
 					timer.cancel();
+					System.exit(0);
 					return;
 				}
 				Chunk chunk = buffer.get();
