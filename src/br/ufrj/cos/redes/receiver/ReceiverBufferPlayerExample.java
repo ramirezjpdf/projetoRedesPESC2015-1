@@ -10,20 +10,24 @@ import br.ufrj.cos.redes.delayLossSimulator.DelayLossSimulatorDummyTabajara;
 
 public class ReceiverBufferPlayerExample {
 	public static void main(String[] args) throws IOException {
+		boolean isSender = (args.length == 2);
+		
 		int N_CHUNKS = 50;
-		int B = 1;
-		int B_WINDOW = 6;
+		int B = !isSender ? Integer.parseInt(args[2]) : 10;
+		double F = !isSender ? Double.parseDouble(args[3]) : 0.0;
+		int B_WINDOW =B + (int) Math.ceil(F*B);
 		
-		double F = 0.0;
 		double LAMBDA = 5;
-		long RTT = 600;
+		long RTT = !isSender ? Long.parseLong(args[4]) : Long.parseLong(args[0]);
 		
-		String REQUESTED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt";
-		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
-		String LOG_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\projetoLog.txt";
+//		String REQUESTED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt";
+//		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
+//		String LOG_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\projetoLog.txt";
 
-//		String REQUESTED_FILE_NAME = "C:\\Users\\Pedro Freitas\\Desktop\\Declaracao Bras.pdf";
-//		String RECEIVED_FILE_NAME = "C:\\Users\\Pedro Freitas\\Desktop\\Declaracao Bras2.pdf";
+		String REQUESTED_FILE_NAME = !isSender ? args[0] : "C:\\Users\\Pedro Freitas\\Desktop\\Declaracao Bras.pdf";
+		String RECEIVED_FILE_NAME = !isSender ? args[1] : "C:\\Users\\Pedro Freitas\\Desktop\\Declaracao Bras2.pdf";
+		String LOG_FILE_NAME = !isSender ? args[5] : args[1];
+		
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
 		
