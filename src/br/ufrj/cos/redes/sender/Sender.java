@@ -9,11 +9,13 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import br.ufrj.cos.redes.fileAccess.Chunk;
 import br.ufrj.cos.redes.fileAccess.FileChunkRetriever;
+import br.ufrj.cos.redes.packet.EndAckPacket;
 import br.ufrj.cos.redes.packet.EndPacket;
 import br.ufrj.cos.redes.packet.InitPacket;
 import br.ufrj.cos.redes.packet.Package;
@@ -94,17 +96,72 @@ public class Sender {
 	}
 	
 	public void sendEndMsg() throws IOException {
-		EndPacket endPkt = new EndPacket(EndPacket.END_MSG);
-		ByteArrayOutputStream outByteArray = new ByteArrayOutputStream();
-		new ObjectOutputStream(outByteArray).writeObject(endPkt);
-		DatagramPacket endDatagram = new DatagramPacket(outByteArray.toByteArray(),
-														outByteArray.size(),
-														receiverInfo.getAddress(),
-														receiverInfo.getPort());
+		final long SEND_DELAY = 250;
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			
+			@Override
+			public void run() {
+				EndPacket endPkt = new EndPacket(EndPacket.END_MSG);
+				try {
+					endPkt.setServerAddress(InetAddress.getLocalHost());
+				} catch (UnknownHostException e2) {
+					System.out.println("Could not resolve local host");
+					return;
+				}
+				endPkt.setServerAckPort(port);
+				ByteArrayOutputStream outByteArray = new ByteArrayOutputStream();
+				DatagramSocket sendServerSocket = null;
+				try {
+					sendServerSocket = new DatagramSocket();
+				} catch (SocketException e1) {
+					System.out.println("An Error occurred when creating socket for sending end msg, Trying again after " + SEND_DELAY + "ms.");
+					return;
+				}
+				try {
+					new ObjectOutputStream(outByteArray).writeObject(endPkt);
+					System.out.println("Sending end msg... ");
+					DatagramPacket endDatagram = new DatagramPacket(outByteArray.toByteArray(),
+																	outByteArray.size(),
+																	receiverInfo.getAddress(),
+																	receiverInfo.getPort());
+					sendServerSocket.send(endDatagram);
+					System.out.println("End msg sended. wating ack...");
+				} catch (IOException e) {
+					System.out.println("An Error occurred when sending end msg, Trying again after " + SEND_DELAY + "ms.");
+					
+				} finally {
+					sendServerSocket.close();
+				}
+			}
+		}, SEND_DELAY, SEND_DELAY);
+		
+		
 		if (serverSocket.isClosed()) {
 			serverSocket = new DatagramSocket(port);
 		}
-		serverSocket.send(endDatagram);
+		while (true) {
+			byte []ackBytes = new byte[1024];
+			DatagramPacket endAckPck = new DatagramPacket(ackBytes, ackBytes.length);
+			serverSocket.receive(endAckPck);
+			ObjectInputStream objIStream = new ObjectInputStream(new ByteArrayInputStream(ackBytes));
+			try {
+				EndAckPacket ack = (EndAckPacket) objIStream.readObject();
+				if (ack.getMsg().equals(EndAckPacket.END_ACK_MSG)) {
+					System.out.println("Received end Ack Msg from Receiver! Exiting program.");
+					serverSocket.close();
+					objIStream.close();
+					timer.cancel();
+					break;
+				} else {
+					System.out.println("The msg received is not an Ack for end msg. Continue to wait ack for end msg.");
+				}
+			} catch(ClassCastException e) {
+				System.out.println("The msg received is not an Ack for end msg. Continue to wait ack for end msg.");
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public void close() {
