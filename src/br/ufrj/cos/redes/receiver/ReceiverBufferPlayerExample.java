@@ -1,21 +1,22 @@
 package br.ufrj.cos.redes.receiver;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 
 import br.ufrj.cos.redes.delayLossSimulator.DelayLossSimulator;
-import br.ufrj.cos.redes.delayLossSimulator.DelayLossSimulatorDummyTabajara;
 
 public class ReceiverBufferPlayerExample {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		boolean isSender = (args.length == 2);
 		
 		int N_CHUNKS = 50;
 		int B = !isSender ? Integer.parseInt(args[2]) : 10;
 		double F = !isSender ? Double.parseDouble(args[3]) : 0.0;
-		int B_WINDOW =B + (int) Math.ceil(F*B);
+		int B_WINDOW = B + (int) Math.ceil(F*B);
 		
 		double LAMBDA = 5;
 		long RTT = !isSender ? Long.parseLong(args[4]) : Long.parseLong(args[0]);
@@ -31,12 +32,28 @@ public class ReceiverBufferPlayerExample {
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
 		
-		Buffer buffer = new Buffer(B, B);
+		Buffer buffer = new Buffer(B, B_WINDOW);
 		DelayLossSimulator simulator = new DelayLossSimulator(F, LAMBDA, RTT, buffer);
-		Player player = new Player(new FileOutputStream(RECEIVED_FILE_NAME), new FileOutputStream(LOG_FILE_NAME));
-		
-		DatagramSocket clientSocket = new DatagramSocket();
+		Player player = null;
+		try {
+			player = new Player(new FileOutputStream(RECEIVED_FILE_NAME), new FileOutputStream(LOG_FILE_NAME));
+		} catch (FileNotFoundException e) {
+			System.out.println("Error in player, FileNotFoundException"); 
+			e.printStackTrace();
+		}		
+		DatagramSocket clientSocket = null;
+		try {
+			clientSocket = new DatagramSocket();
+		} catch (SocketException e) {
+			System.out.println("Error in clientSocket, SocketException"); 
+			e.printStackTrace();
+		}
 		Receiver receiver = new Receiver(buffer, REQUESTED_FILE_NAME, simulator, player);
-		receiver.startReceiver(clientSocket, SERVER_ADDRESS, SERVER_PORT);
+		try {
+			receiver.startReceiver(clientSocket, SERVER_ADDRESS, SERVER_PORT);
+		} catch (IOException e) {
+			System.out.println("Error in receiver, IOException"); 
+			e.printStackTrace();
+		}
 	}
 }
