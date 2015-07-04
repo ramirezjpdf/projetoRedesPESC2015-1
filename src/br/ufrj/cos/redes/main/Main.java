@@ -9,7 +9,7 @@ import br.ufrj.cos.redes.sender.SenderExample;
 
 public class Main {
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		
 		String REQUESTED_FILE_NAME = null; 	
 		String RECEIVED_FILE_NAME = null;
@@ -70,22 +70,10 @@ public class Main {
 		String[] args2 = {REQUESTED_FILE_NAME, RECEIVED_FILE_NAME, B, F, RTT, LOG_FILE_NAME};
 		String[] args3 = {RTT, LOG_FILE_NAME};
 		
-		Thread receiverThread = null;
 		Thread senderThread = null;
+		Thread receiverThread = null;
 		
-		if(isSender) {			
-			receiverThread = new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					try {
-						ReceiverBufferPlayerExample.main(args3);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}	
-				}
-			});
-			
+		if(isSender) {						
 			senderThread = new Thread(new Runnable() {
 				
 				@Override
@@ -93,21 +81,17 @@ public class Main {
 					SenderExample.main(args1);	
 				}
 			});
-			
-		}
-		else {
+
 			receiverThread = new Thread(new Runnable() {
 				
 				@Override
 				public void run() {
-					try {
-						ReceiverBufferPlayerExample.main(args2);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}	
+					ReceiverBufferPlayerExample.main(args3);	
 				}
 			});
 			
+		}
+		else {
 			senderThread = new Thread(new Runnable() {
 				
 				@Override
@@ -115,6 +99,14 @@ public class Main {
 					SenderExample.main(args);	
 				}
 			});
+
+			receiverThread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					ReceiverBufferPlayerExample.main(args2);	
+				}
+			});		
 		
 		}
 		
