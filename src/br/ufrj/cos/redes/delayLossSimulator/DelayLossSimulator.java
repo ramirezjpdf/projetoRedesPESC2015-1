@@ -1,8 +1,10 @@
 package br.ufrj.cos.redes.delayLossSimulator;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Calendar;
@@ -10,6 +12,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import br.ufrj.cos.redes.fileAccess.Chunk;
+import br.ufrj.cos.redes.packet.EndAckPacket;
 import br.ufrj.cos.redes.packet.EndPacket;
 import br.ufrj.cos.redes.packet.Package;
 import br.ufrj.cos.redes.receiver.Buffer;
@@ -32,29 +35,33 @@ public class DelayLossSimulator {
 
 	public void receive(DatagramSocket clientSocket) throws IOException, ClassNotFoundException {			
 		boolean keep = true;
-		
+		int chunkRecvCount = 0;
 		try {
 			while(keep) {				
 				byte[] recvBytes = new byte[1024];
 				DatagramPacket recvPkt = new DatagramPacket(recvBytes, recvBytes.length);
+				System.out.println("Waiting chunk to complete a total of " + (chunkRecvCount + 1) + " received.");
 				clientSocket.receive(recvPkt);
+				System.out.println("Received " + ++chunkRecvCount + " chunks already.");
 				
 				ObjectInputStream objIStream = new ObjectInputStream(new ByteArrayInputStream(recvPkt.getData()));
 				
 				Package pkg = null;
 				Object obj = objIStream.readObject();
 				try {					
-					pkg = (Package) obj;					
+					pkg = (Package) obj;
 				} catch (ClassCastException e) {
 					EndPacket endPkt = null;					
 					try {
 						System.out.println("End Msg received");
+						System.out.println("Total chunks received is " + chunkRecvCount);
 						endPkt = (EndPacket) obj;
 					} catch (Exception ee) {
 						System.out.println("Error in init object");
 					}					
-					keep = !endPkt.getSendedEndMsg().equals(EndPacket.END_MSG);	
-
+					keep = !endPkt.getSendedEndMsg().equals(EndPacket.END_MSG);
+					sendEndAck(endPkt);
+					
 					System.out.println("waiting for last chunk in simulator...");
 					do {} while(!chunkList.isOver());
 					buffer.alertEnd();				
@@ -115,6 +122,24 @@ public class DelayLossSimulator {
 			clientSocket.close();
 		}
 		
-	}	
+	}
+	
+	private void sendEndAck(EndPacket endpkt) throws IOException {
+		DatagramSocket ackSocket = new DatagramSocket();
+		try {
+			ByteArrayOutputStream byteOStream = new ByteArrayOutputStream();
+			ObjectOutputStream objOStream = new ObjectOutputStream(byteOStream);
+			
+			EndAckPacket endAckPkt = new EndAckPacket(EndAckPacket.END_ACK_MSG);
+			objOStream.writeObject(endAckPkt);
+			byte[] ackBytes = byteOStream.toByteArray();
+			DatagramPacket ack = new DatagramPacket(ackBytes, ackBytes.length, endpkt.getServerAddress(), endpkt.getServerAckPort());
+			
+			ackSocket.send(ack);
+		} finally {
+			ackSocket.close();
+		}
+		
+	}
 	
 }
