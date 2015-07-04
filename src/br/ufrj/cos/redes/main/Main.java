@@ -38,11 +38,11 @@ public class Main {
 			}
 			
 			prop.load(input);
-			
+
 			isSender = prop.getProperty("SENDER_OR_RECEIVER").equalsIgnoreCase("Sender");
 			if(isSender) {
 				sequentialOrRandom = prop.getProperty("SEQUENTIAL_OR_RANDOM");
-				if(sequentialOrRandom.equalsIgnoreCase("Sequencial")) {
+				if(sequentialOrRandom.equalsIgnoreCase("Sequential")) {
 					r = prop.getProperty("r");					
 				}
 			} else {
