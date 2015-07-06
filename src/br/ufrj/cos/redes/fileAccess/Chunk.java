@@ -2,6 +2,9 @@ package br.ufrj.cos.redes.fileAccess;
 
 import java.io.Serializable;
 
+import br.ufrj.cos.redes.timeInfo.LatencyInfo;
+import br.ufrj.cos.redes.timeInfo.TimestampInfo;
+
 public class Chunk implements Comparable<Chunk>, Serializable {
 	/**
 	 * 
@@ -11,19 +14,20 @@ public class Chunk implements Comparable<Chunk>, Serializable {
 	private byte[] bytes;
 	private int actualChunkLength;
 	private boolean available;
-	private long transTimeStamp;
-	private long recTimeStamp;
-	private long playedTimeStamp;
 	
-	
+	private LatencyInfo latencyInfo;
+	private TimestampInfo timestampInfo;	
 
 	public Chunk(int chunkLength) {
-		bytes = new byte[chunkLength];
+		this(chunkLength, false);
 	}
 	
 	public Chunk(int chunkLength, boolean available) {
 		bytes = new byte[chunkLength];
 		this.available = available;
+		
+		latencyInfo = new LatencyInfo();
+		timestampInfo = new TimestampInfo();
 	}
 	
 	public long getSeqNum() {
@@ -62,29 +66,21 @@ public class Chunk implements Comparable<Chunk>, Serializable {
 	public void setAvailable(boolean available) {
 		this.available = available;
 	}
-	
-	public long getTransTimeStamp() {
-		return transTimeStamp;
+
+	public LatencyInfo getLatencyInfo() {
+		return latencyInfo;
 	}
-	
-	public void setTransTimeStamp(long transTimeStamp) {
-		this.transTimeStamp = transTimeStamp;
+
+	public void setLatencyInfo(LatencyInfo latencyInfo) {
+		this.latencyInfo = latencyInfo;
 	}
-	
-	public long getRecTimeStamp() {
-		return recTimeStamp;
+
+	public TimestampInfo getTimestampInfo() {
+		return timestampInfo;
 	}
-	
-	public void setRecTimeStamp(long recTimeStamp) {
-		this.recTimeStamp = recTimeStamp;
-	}
-	
-	public long getPlayedTimeStamp() {
-		return playedTimeStamp;
-	}
-	
-	public void setPlayedTimeStamp(long playedTimeStamp) {
-		this.playedTimeStamp = playedTimeStamp;
+
+	public void setTimestampInfo(TimestampInfo timestamoInfo) {
+		this.timestampInfo = timestamoInfo;
 	}
 }
 
