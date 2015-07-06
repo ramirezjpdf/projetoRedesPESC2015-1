@@ -21,7 +21,8 @@ public class Main {
 		String F = null;
 		String RTT = null;
 		
-		String LOG_FILE_NAME = null;
+		String TIMESTAMP_LOG_FILE_NAME = null;
+		String LATENCY_LOG_FILE_NAME = null;
 		
 		
 		
@@ -52,7 +53,8 @@ public class Main {
 				F = prop.getProperty("F");
 			}
 			RTT = prop.getProperty("RTT");
-			LOG_FILE_NAME = prop.getProperty("LOG_FILE_NAME");			
+			TIMESTAMP_LOG_FILE_NAME = prop.getProperty("TIMESTAMP_LOG_FILE_NAME");
+			LATENCY_LOG_FILE_NAME = prop.getProperty("LATENCY_LOG_FILE_NAME");
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -67,8 +69,8 @@ public class Main {
 		}
 		
 		String[] args1 = {sequentialOrRandom, r};		
-		String[] args2 = {REQUESTED_FILE_NAME, RECEIVED_FILE_NAME, B, F, RTT, LOG_FILE_NAME};
-		String[] args3 = {RTT, LOG_FILE_NAME};
+		String[] args2 = {REQUESTED_FILE_NAME, RECEIVED_FILE_NAME, B, F, RTT, TIMESTAMP_LOG_FILE_NAME, LATENCY_LOG_FILE_NAME};
+		String[] args3 = {RTT, TIMESTAMP_LOG_FILE_NAME, LATENCY_LOG_FILE_NAME};
 		
 		Thread senderThread = null;
 		Thread receiverThread = null;
