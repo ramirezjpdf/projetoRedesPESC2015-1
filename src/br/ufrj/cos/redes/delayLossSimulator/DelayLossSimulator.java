@@ -76,8 +76,8 @@ public class DelayLossSimulator {
 					if(chunk.isAvailable()) {
 						ExponentialSampleGenerator generator = new ExponentialSampleGenerator(LAMBDA);
 						long x = (long) (generator.getSample()*1000);
-						
-						long tn = chunk.getTransTimeStamp() + RTT/2 + x;	
+						long latency = RTT/2 + x;
+						long tn = chunk.getTimestampInfo().getTransmitionTimeStamp() + latency;
 						
 						//this prevents repetition of tn
 						while (chunkList.hasChunkWithTn(tn)) {
@@ -85,9 +85,9 @@ public class DelayLossSimulator {
 						}
 						// unfortunately we need a final variable inside the run method. 
 						long finalTn = tn; 
-						chunk.setRecTimeStamp(finalTn);
-						// gambiarra we need this to find the real played timestamp
-						chunk.setPlayedTimeStamp(Calendar.getInstance().getTimeInMillis());
+						chunk.getLatencyInfo().setReceivedLatency(latency);
+						chunk.getTimestampInfo().setReceivedTimeStamp(finalTn);
+						
 						chunkList.add(finalTn, chunk);
 						
 						Timer timer = new Timer();
@@ -101,6 +101,8 @@ public class DelayLossSimulator {
 									c = chunkList.getChunk(finalTn);
 									if (c != null) {
 										System.out.println("chunk for tn = " + finalTn + ": chunk.seqNum = " + c.getSeqNum());
+										// gambiarra we need this to find the real played timestamp
+										chunk.getLatencyInfo().setPlayedLatency(Calendar.getInstance().getTimeInMillis());
 										buffer.add(c);
 									}
 									else {
