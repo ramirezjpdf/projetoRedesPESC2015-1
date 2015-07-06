@@ -10,32 +10,47 @@ import br.ufrj.cos.redes.fileAccess.Chunk;
 
 public class Player {
 	private OutputStream playerOStream;
-	private PrintWriter logWriter;
+	private PrintWriter timestampLogWriter;
+	private PrintWriter latencyLogWriter;
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSz");
 	
-	public Player(OutputStream ostream, OutputStream logStream) {
+	
+	public Player(OutputStream ostream, OutputStream timestampLogStream, OutputStream latencyLogStream) {
 		this.playerOStream = ostream;
-		this.logWriter = new PrintWriter(logStream);
-		initLog();
+		this.timestampLogWriter = new PrintWriter(timestampLogStream);
+		this.latencyLogWriter = new PrintWriter(latencyLogStream);
+		initLogs();
 	}
 	
 	public void play(Chunk chunk) throws IOException {
 		Calendar calendar = Calendar.getInstance();
-		chunk.setPlayedTimeStamp(calendar.getTimeInMillis() - chunk.getPlayedTimeStamp());
+		long latency = calendar.getTimeInMillis() - chunk.getLatencyInfo().getPlayedLatency();
+		chunk.getLatencyInfo().setPlayedLatency(latency);
+		chunk.getTimestampInfo().setPlayedTimeStamp(chunk.getTimestampInfo().getReceivedTimeStamp() + latency);
 		System.out.println(formatter.format(calendar.getTime()) + ": Playing chunk with seqNum " + chunk.getSeqNum());
 		playerOStream.write(chunk.getBytes(), 0, chunk.getActualChunkLength());
-		log(chunk);
+		logTimestampInfo(chunk);
+		logLatencyInfo(chunk);
 	}
 	
-	private void initLog() {
-		logWriter.println("seqNum,transTimestamp,recvTimestamp,playedTimestamp");
+	private void logLatencyInfo(Chunk chunk) {
+		latencyLogWriter.println(chunk.getSeqNum() + "," + 
+				  chunk.getLatencyInfo().getTransmitionLatency() + "," +
+				  chunk.getLatencyInfo().getReceivedLatency() + "," + 
+				  chunk.getLatencyInfo().getPlayedLatency());
+		latencyLogWriter.flush();	
+	}
+
+	private void initLogs() {
+		timestampLogWriter.println("seqNum,Transmited timestamp,Received timestamp,Played timestamp");
+		latencyLogWriter.println("seqNum,Transmited latency,Received latency,Played latency");
 	}
 	
-	private void log(Chunk chunk) {
-		logWriter.println(chunk.getSeqNum() + "," + 
-						  chunk.getTransTimeStamp() + "," +
-						  chunk.getRecTimeStamp() + "," + 
-						  chunk.getPlayedTimeStamp());
-		logWriter.flush();
+	private void logTimestampInfo(Chunk chunk) {
+		timestampLogWriter.println(chunk.getSeqNum() + "," + 
+						  chunk.getTimestampInfo().getTransmitionTimeStamp() + "," +
+						  chunk.getTimestampInfo().getReceivedTimeStamp() + "," + 
+						  chunk.getTimestampInfo().getPlayedTimeStamp());
+		timestampLogWriter.flush();
 	}
 }
