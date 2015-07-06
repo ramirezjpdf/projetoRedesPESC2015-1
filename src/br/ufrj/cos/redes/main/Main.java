@@ -11,18 +11,24 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-		String REQUESTED_FILE_NAME = null; 	
-		String RECEIVED_FILE_NAME = null;
-		
+		//these values are always read in config.properties
 		boolean isSender = false;
-		String sequentialOrRandom = null;
-		String r = null;		
-		String B = null;	
-		String F = null;
-		String RTT = null;
-		
+		String RTT = null;		
 		String TIMESTAMP_LOG_FILE_NAME = null;
 		String LATENCY_LOG_FILE_NAME = null;
+
+		//if chosen sender in 'config.properties', these are the default values
+		String REQUESTED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt"; 	
+		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testrecv.txt";
+//		String REQUESTED_FILE_NAME = "C:\\Users\\Pedro Freitas\\Desktop\\testinput.txt"; 	
+//		String RECEIVED_FILE_NAME = "C:\\Users\\Pedro Freitas\\Desktop\\testrecv.txt";		
+		String B = "50";	
+		String F = "0.0";
+
+		//if chosen receiver in 'config.properties', these are the default values
+		String sequentialOrRandom = "Random";
+		String r = "-1";		
+		
 		
 		
 		
@@ -70,50 +76,26 @@ public class Main {
 		
 		String[] args1 = {sequentialOrRandom, r};		
 		String[] args2 = {REQUESTED_FILE_NAME, RECEIVED_FILE_NAME, B, F, RTT, TIMESTAMP_LOG_FILE_NAME, LATENCY_LOG_FILE_NAME};
-		String[] args3 = {RTT, TIMESTAMP_LOG_FILE_NAME, LATENCY_LOG_FILE_NAME};
 		
-		Thread senderThread = null;
-		Thread receiverThread = null;
 		
-		if(isSender) {						
-			senderThread = new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					SenderExample.main(args1);	
-				}
-			});
-
-			receiverThread = new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					ReceiverBufferPlayerExample.main(args3);	
-				}
-			});
+		Thread senderThread = new Thread(new Runnable() {
 			
-		}
-		else {
-			senderThread = new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					SenderExample.main(args);	
-				}
-			});
+			@Override
+			public void run() {
+				SenderExample.main(args1);	
+			}
+		});
 
-			receiverThread = new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					ReceiverBufferPlayerExample.main(args2);	
-				}
-			});		
+		Thread receiverThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				ReceiverBufferPlayerExample.main(args2);	
+			}
+		});
 		
-		}
-		
-		receiverThread.start();
 		senderThread.start();
+		receiverThread.start();
 		
 	}
 }
