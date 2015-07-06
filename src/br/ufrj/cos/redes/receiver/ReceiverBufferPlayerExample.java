@@ -10,24 +10,18 @@ import java.net.SocketException;
 import br.ufrj.cos.redes.delayLossSimulator.DelayLossSimulator;
 
 public class ReceiverBufferPlayerExample {
-	public static void main(String[] args) {
-		boolean isSender = (args.length == 3);
-	
-		int B = !isSender ? Integer.parseInt(args[2]) : 10;
-		double F = !isSender ? Double.parseDouble(args[3]) : 0.0;
+	public static void main(String[] args) {	
+		int B = Integer.parseInt(args[2]);
+		double F = Double.parseDouble(args[3]);
 		int B_WINDOW = B + (int) Math.ceil(F*B);
 		
 		double LAMBDA = 5;
-		long RTT = !isSender ? Long.parseLong(args[4]) : Long.parseLong(args[0]);
+		long RTT = Long.parseLong(args[4]);
 		
-//		String REQUESTED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt";
-//		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
-//		String LOG_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\projetoLog.txt";
-
-		String REQUESTED_FILE_NAME = !isSender ? args[0] : "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt";
-		String RECEIVED_FILE_NAME = !isSender ? args[1] : "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
-		String TIMESTAMP_LOG_FILE_NAME = !isSender ? args[5] : args[1];
-		String LATENCY_LOG_FILE_NAME = !isSender ? args[6] : args[2];
+		String REQUESTED_FILE_NAME = args[0];
+		String RECEIVED_FILE_NAME = args[1];
+		String TIMESTAMP_LOG_FILE_NAME = args[5];
+		String LATENCY_LOG_FILE_NAME = args[6];
 		
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
