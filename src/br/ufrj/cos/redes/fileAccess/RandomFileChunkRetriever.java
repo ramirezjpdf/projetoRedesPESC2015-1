@@ -23,7 +23,7 @@ public class RandomFileChunkRetriever implements FileChunkRetriever {
 		chunkCounter = 0;
 		this.chunkLength = chunkLength;
 		chunkSeqNumList = new ArrayList<Integer>();
-		for (int i = Constants.INITIAL_CHUNK_SEQ_NUM; i < Constants.INITIAL_CHUNK_SEQ_NUM + (fileLength / chunkLength) + 1; i++) {
+		for (int i = Constants.INITIAL_CHUNK_SEQ_NUM; i < Constants.INITIAL_CHUNK_SEQ_NUM + (int) Math.ceil((double) fileLength / (double) chunkLength); i++) {
 			chunkSeqNumList.add(new Integer(i));
 		}
 		Collections.shuffle(chunkSeqNumList);
