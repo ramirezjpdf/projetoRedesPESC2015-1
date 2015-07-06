@@ -11,9 +11,8 @@ import br.ufrj.cos.redes.delayLossSimulator.DelayLossSimulator;
 
 public class ReceiverBufferPlayerExample {
 	public static void main(String[] args) {
-		boolean isSender = (args.length == 2);
-		
-		int N_CHUNKS = 50;
+		boolean isSender = (args.length == 3);
+	
 		int B = !isSender ? Integer.parseInt(args[2]) : 10;
 		double F = !isSender ? Double.parseDouble(args[3]) : 0.0;
 		int B_WINDOW = B + (int) Math.ceil(F*B);
@@ -25,9 +24,10 @@ public class ReceiverBufferPlayerExample {
 //		String RECEIVED_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
 //		String LOG_FILE_NAME = "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\projetoLog.txt";
 
-		String REQUESTED_FILE_NAME = !isSender ? args[0] : "C:\\Users\\Pedro Freitas\\Desktop\\Declaracao Bras.pdf";
-		String RECEIVED_FILE_NAME = !isSender ? args[1] : "C:\\Users\\Pedro Freitas\\Desktop\\Declaracao Bras2.pdf";
-		String LOG_FILE_NAME = !isSender ? args[5] : args[1];
+		String REQUESTED_FILE_NAME = !isSender ? args[0] : "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinput.txt";
+		String RECEIVED_FILE_NAME = !isSender ? args[1] : "C:\\Users\\Joao&Duda\\Desktop\\JP\\2015-1\\redes\\testinputrecv.txt";
+		String TIMESTAMP_LOG_FILE_NAME = !isSender ? args[5] : args[1];
+		String LATENCY_LOG_FILE_NAME = !isSender ? args[6] : args[2];
 		
 		InetAddress SERVER_ADDRESS = InetAddress.getLoopbackAddress();
 		int SERVER_PORT = 29920;
@@ -36,7 +36,9 @@ public class ReceiverBufferPlayerExample {
 		DelayLossSimulator simulator = new DelayLossSimulator(F, LAMBDA, RTT, buffer);
 		Player player = null;
 		try {
-			player = new Player(new FileOutputStream(RECEIVED_FILE_NAME), new FileOutputStream(LOG_FILE_NAME));
+			player = new Player(new FileOutputStream(RECEIVED_FILE_NAME),
+								new FileOutputStream(TIMESTAMP_LOG_FILE_NAME),
+								new FileOutputStream(LATENCY_LOG_FILE_NAME));
 		} catch (FileNotFoundException e) {
 			System.out.println("Error in player, FileNotFoundException"); 
 			e.printStackTrace();
