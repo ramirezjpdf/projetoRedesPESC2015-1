@@ -102,7 +102,7 @@ public class DelayLossSimulator {
 									if (c != null) {
 										System.out.println("chunk for tn = " + finalTn + ": chunk.seqNum = " + c.getSeqNum());
 										// gambiarra we need this to find the real played timestamp
-										chunk.getLatencyInfo().setPlayedLatency(Calendar.getInstance().getTimeInMillis());
+										c.getLatencyInfo().setPlayedLatency(Calendar.getInstance().getTimeInMillis());
 										buffer.add(c);
 									}
 									else {
