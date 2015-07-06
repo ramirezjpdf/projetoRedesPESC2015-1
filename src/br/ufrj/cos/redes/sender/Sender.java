@@ -76,7 +76,9 @@ public class Sender {
 						
 						Package pkg = new Package(chunk);
 						pkg.setFileSize(chunkRetriever.getTotalFileSize());
-						chunk.setTransTimeStamp(INTERVAL + (INTERVAL*count++));
+						long transmitionLatencyAndTimestamp = INTERVAL + (INTERVAL * count++);
+						chunk.getLatencyInfo().setTransmitionLatency(transmitionLatencyAndTimestamp);
+						chunk.getTimestampInfo().setTransmitionTimeStamp(transmitionLatencyAndTimestamp);
 						
 						objOutputStream.writeObject(pkg);
 						DatagramPacket sendPkt = new DatagramPacket(byteArrayOStream.toByteArray(),
