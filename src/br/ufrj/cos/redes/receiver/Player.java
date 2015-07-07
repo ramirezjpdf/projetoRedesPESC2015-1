@@ -55,8 +55,8 @@ public class Player {
 	}
 
 	private void initLogs() {
-		timestampLogWriter.println("seqNum,Transmited timestamp,Received timestamp,Played timestamp");
-		latencyLogWriter.println("seqNum,Transmited latency,Received latency,Played latency");
+		timestampLogWriter.println("seqNum,Transmitted timestamp,Received timestamp,Played timestamp");
+		latencyLogWriter.println("seqNum,Transmitted latency,Received latency,Played latency");
 	}
 	
 	private void logTimestampInfo(Chunk chunk) {
